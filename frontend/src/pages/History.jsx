@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import axios from 'axios'
 import './History.css'
 
-const API = 'http://127.0.0.1:8000'
+const API = 'https://drain-eye-production.up.railway.app'
 
 const SEVERITY_LABELS = {
   clear:            { label: 'Bersih',          color: '#27500A', bg: '#EAF3DE', icon: '✅' },

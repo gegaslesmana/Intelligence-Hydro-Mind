@@ -3,7 +3,7 @@ import axios from 'axios'
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell } from 'recharts'
 import './Dashboard.css'
 
-const API = 'http://127.0.0.1:8000'
+const API = 'https://drain-eye-production.up.railway.app'
 
 // data peta kelurahan simulasi
 const KELURAHAN_DATA = [
