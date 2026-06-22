@@ -1,1 +1,11 @@
- 
+ fastapi
+uvicorn
+ultralytics
+tensorflow
+pandas
+geopandas
+psycopg2-binary
+python-multipart
+pillow
+python-dotenv
+numpy
