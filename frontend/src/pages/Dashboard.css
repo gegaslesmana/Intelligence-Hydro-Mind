@@ -1,0 +1,67 @@
+.dash-wrap { display: flex; flex-direction: column; min-height: 100vh; }
+
+.topbar { background: #1F4E79; padding: 10px 20px; display: flex; align-items: center; justify-content: space-between; }
+.topbar-left { display: flex; align-items: center; gap: 10px; }
+.topbar-logo { font-size: 22px; }
+.topbar-title { color: #E6F1FB; font-size: 16px; font-weight: 600; }
+.topbar-sub { color: #93C5E8; font-size: 12px; }
+.topbar-right { display: flex; align-items: center; gap: 14px; }
+.topbar-time { color: #B5D4F4; font-size: 12px; }
+.btn-upload { background: #2E74B5; color: #fff; border: none; border-radius: 8px; padding: 7px 14px; font-size: 12px; cursor: pointer; text-decoration: none; }
+
+.dash-body { display: flex; flex: 1; }
+
+.sidebar { width: 180px; flex-shrink: 0; background: #fff; border-right: 1px solid #e2e8f0; padding: 12px 0; display: flex; flex-direction: column; gap: 2px; }
+.nav-item { display: flex; align-items: center; gap: 8px; padding: 9px 16px; font-size: 13px; color: #64748b; cursor: pointer; text-decoration: none; }
+.nav-item:hover { background: #f8fafc; color: #1F4E79; }
+.nav-item.active { background: #E6F1FB; color: #1F4E79; font-weight: 500; border-right: 3px solid #1F4E79; }
+.nav-badge { background: #FCEBEB; color: #A32D2D; font-size: 10px; padding: 1px 6px; border-radius: 10px; margin-left: auto; }
+
+.main-content { flex: 1; padding: 20px; display: flex; flex-direction: column; gap: 16px; overflow-y: auto; }
+
+.metrics-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+.metric-card { background: #fff; border-radius: 10px; padding: 14px 16px; border: 1px solid #e2e8f0; }
+.metric-val { font-size: 28px; font-weight: 600; line-height: 1.1; }
+.metric-val.red { color: #A32D2D; }
+.metric-val.amber { color: #633806; }
+.metric-val.green { color: #27500A; }
+.metric-lbl { font-size: 12px; color: #64748b; margin-top: 4px; }
+.metric-tag { font-size: 10px; padding: 2px 8px; border-radius: 20px; margin-top: 6px; display: inline-block; font-weight: 500; }
+.red-tag { background: #FCEBEB; color: #A32D2D; }
+.amber-tag { background: #FAEEDA; color: #633806; }
+.green-tag { background: #EAF3DE; color: #27500A; }
+.gray-tag { background: #f1f5f9; color: #64748b; }
+
+.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+
+.card { background: #fff; border-radius: 10px; padding: 16px; border: 1px solid #e2e8f0; }
+.card-title { font-size: 13px; font-weight: 600; color: #1F4E79; margin-bottom: 12px; }
+
+.legend-row { display: flex; align-items: center; gap: 10px; margin-top: 10px; font-size: 11px; color: #64748b; flex-wrap: wrap; }
+.legend-dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; }
+
+.alert-row { display: flex; align-items: flex-start; gap: 10px; padding: 8px 0; border-bottom: 1px solid #f1f5f9; }
+.alert-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; margin-top: 4px; }
+.alert-body { flex: 1; min-width: 0; }
+.alert-title { font-size: 12px; font-weight: 500; }
+.alert-msg { font-size: 11px; color: #64748b; margin-top: 2px; }
+.alert-time { font-size: 10px; color: #94a3b8; margin-top: 2px; }
+.btn-ack { font-size: 10px; padding: 3px 8px; border-radius: 6px; border: 1px solid #e2e8f0; background: #f8fafc; color: #64748b; cursor: pointer; white-space: nowrap; flex-shrink: 0; }
+
+.stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+.stat-item { border-radius: 8px; padding: 10px 8px; text-align: center; }
+.stat-val { font-size: 20px; font-weight: 600; }
+.stat-lbl { font-size: 10px; margin-top: 2px; }
+.red-bg { background: #FCEBEB; color: #A32D2D; }
+.amber-bg { background: #FAEEDA; color: #633806; }
+.yellow-bg { background: #FEFCE8; color: #713F12; }
+.green-bg { background: #EAF3DE; color: #27500A; }
+
+.queue-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+.queue-table th { text-align: left; padding: 8px 10px; background: #f8fafc; color: #64748b; font-weight: 500; border-bottom: 1px solid #e2e8f0; }
+.queue-table td { padding: 10px; border-bottom: 1px solid #f1f5f9; }
+.priority-badge { font-size: 11px; padding: 2px 8px; border-radius: 10px; font-weight: 600; }
+.status-badge { font-size: 11px; padding: 2px 8px; border-radius: 10px; font-weight: 500; }
+.status-assigned { background: #E6F1FB; color: #1F4E79; }
+.status-in_progress { background: #FAEEDA; color: #633806; }
+.status-pending { background: #f1f5f9; color: #64748b; }

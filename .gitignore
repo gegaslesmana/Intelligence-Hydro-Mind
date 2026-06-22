@@ -1,0 +1,18 @@
+ # Python
+venv/
+__pycache__/
+*.pyc
+*.pyo
+uploads/
+detections.json
+
+# Node
+node_modules/
+dist/
+
+# Model (terlalu besar untuk GitHub)
+model/yolov8/*.pt
+
+# Environment
+.env
+*.env

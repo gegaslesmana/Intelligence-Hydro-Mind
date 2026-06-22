@@ -1,0 +1,220 @@
+import { useState, useEffect } from 'react'
+import axios from 'axios'
+import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell } from 'recharts'
+import './Dashboard.css'
+
+const API = 'http://127.0.0.1:8000'
+
+// data peta kelurahan simulasi
+const KELURAHAN_DATA = [
+  { name: 'Pluit',           risk: 91, level: 'critical' },
+  { name: 'Koja',            risk: 84, level: 'critical' },
+  { name: 'Tambora',         risk: 72, level: 'high'     },
+  { name: 'Cilincing',       risk: 65, level: 'high'     },
+  { name: 'Palmerah',        risk: 58, level: 'high'     },
+  { name: 'Penjaringan',     risk: 53, level: 'high'     },
+  { name: 'Mampang',         risk: 44, level: 'moderate' },
+  { name: 'Senen',           risk: 38, level: 'moderate' },
+  { name: 'Tebet',           risk: 28, level: 'low'      },
+  { name: 'Pasar Minggu',    risk: 21, level: 'low'      },
+]
+
+const ALERTS = [
+  { id: 1, kelurahan: 'Pluit',    risk: 91, level: 'critical', message: 'Risiko banjir kritis — 3 titik tersumbat parah', time: '10:28 WIB' },
+  { id: 2, kelurahan: 'Koja',     risk: 84, level: 'critical', message: 'Drainase 89% tersumbat — laporan warga x4',       time: '10:15 WIB' },
+  { id: 3, kelurahan: 'Tambora',  risk: 72, level: 'high',     message: 'Hujan 48 jam diprediksi lebat — risiko meningkat', time: 'BMKG'      },
+]
+
+const QUEUE = [
+  { id: 1, priority: 'P1', location: 'Jl. Pluit Raya — drainase utama',    team: 'Tim A', hours: 2,   status: 'assigned'   },
+  { id: 2, priority: 'P1', location: 'Jl. Koja Utara — gorong-gorong',     team: 'Tim B', hours: 3,   status: 'in_progress' },
+  { id: 3, priority: 'P2', location: 'Gg. Tambora 3 — saluran kecil',      team: 'Tim C', hours: 1,   status: 'pending'    },
+  { id: 4, priority: 'P2', location: 'Cilincing — drainase pasar',         team: 'Tim D', hours: 2.5, status: 'pending'    },
+  { id: 5, priority: 'P3', location: 'Mampang — saluran sekunder',         team: 'Tim E', hours: 1.5, status: 'pending'    },
+]
+
+const riskColor = (level) => ({
+  critical: '#E24B4A',
+  high:     '#EF9F27',
+  moderate: '#F5C842',
+  low:      '#3B6D11',
+}[level] || '#64748b')
+
+const priorityStyle = (p) => ({
+  P1: { background: '#FCEBEB', color: '#A32D2D' },
+  P2: { background: '#FAEEDA', color: '#633806' },
+  P3: { background: '#EAF3DE', color: '#27500A' },
+}[p] || {})
+
+export default function Dashboard() {
+  const [summary, setSummary] = useState(null)
+  const [stats, setStats]     = useState(null)
+  const [time, setTime]       = useState(new Date())
+
+  useEffect(() => {
+    // fetch dari backend
+    axios.get(`${API}/api/dashboard/summary`).then(r => setSummary(r.data)).catch(() => {})
+    axios.get(`${API}/api/detection/stats`).then(r => setStats(r.data)).catch(() => {})
+
+    // update jam setiap detik
+    const timer = setInterval(() => setTime(new Date()), 1000)
+    return () => clearInterval(timer)
+  }, [])
+
+  const fmtTime = t => t.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', second: '2-digit' })
+
+  return (
+    <div className="dash-wrap">
+
+      {/* ── TOPBAR ── */}
+      <header className="topbar">
+        <div className="topbar-left">
+          <span className="topbar-logo">💧</span>
+          <span className="topbar-title">DRAIN-EYE</span>
+          <span className="topbar-sub">Dashboard DLH DKI Jakarta</span>
+        </div>
+        <div className="topbar-right">
+          <span className="topbar-time">🕐 {fmtTime(time)} WIB</span>
+          <a href="/upload" className="btn-upload">+ Laporan Baru</a>
+        </div>
+      </header>
+
+      <div className="dash-body">
+
+        {/* ── SIDEBAR ── */}
+        <nav className="sidebar">
+          <a href="/"        className="nav-item active">📊 Dashboard</a>
+          <a href="/upload"  className="nav-item">📷 Upload Foto</a>
+          <a href="/history" className="nav-item">🕐 Riwayat</a>
+          <div className="nav-item">🔔 Alert <span className="nav-badge">3</span></div>
+          <div className="nav-item">📈 Analitik</div>
+          <div className="nav-item">📄 Laporan</div>
+        </nav>
+
+        {/* ── MAIN CONTENT ── */}
+        <main className="main-content">
+
+          {/* ── METRIC CARDS ── */}
+          <div className="metrics-row">
+            <div className="metric-card">
+              <div className="metric-val red">{summary?.total_active_blockages ?? 87}</div>
+              <div className="metric-lbl">Titik tersumbat aktif</div>
+              <div className="metric-tag red-tag">+12 hari ini</div>
+            </div>
+            <div className="metric-card">
+              <div className="metric-val amber">{summary?.total_high_risk_areas ?? 23}</div>
+              <div className="metric-lbl">Risiko tinggi</div>
+              <div className="metric-tag amber-tag">Perlu segera</div>
+            </div>
+            <div className="metric-card">
+              <div className="metric-val green">{summary?.total_completed_today ?? 41}</div>
+              <div className="metric-lbl">Selesai ditangani</div>
+              <div className="metric-tag green-tag">Minggu ini</div>
+            </div>
+            <div className="metric-card">
+              <div className="metric-val">{summary?.total_citizen_reports ?? 1200}</div>
+              <div className="metric-lbl">Laporan warga</div>
+              <div className="metric-tag gray-tag">Total</div>
+            </div>
+          </div>
+
+          <div className="grid-2">
+
+            {/* ── CHART RISIKO ── */}
+            <div className="card">
+              <div className="card-title">📊 Risk Score per Kelurahan</div>
+              <ResponsiveContainer width="100%" height={240}>
+                <BarChart data={KELURAHAN_DATA} layout="vertical" margin={{ left: 16, right: 24 }}>
+                  <XAxis type="number" domain={[0, 100]} tick={{ fontSize: 11 }} />
+                  <YAxis type="category" dataKey="name" tick={{ fontSize: 11 }} width={88} />
+                  <Tooltip formatter={(v) => [`${v}/100`, 'Risk Score']} />
+                  <Bar dataKey="risk" radius={[0, 4, 4, 0]}>
+                    {KELURAHAN_DATA.map((d, i) => (
+                      <Cell key={i} fill={riskColor(d.level)} />
+                    ))}
+                  </Bar>
+                </BarChart>
+              </ResponsiveContainer>
+              <div className="legend-row">
+                <span className="legend-dot" style={{ background: '#E24B4A' }} /> <span>Kritis</span>
+                <span className="legend-dot" style={{ background: '#EF9F27' }} /> <span>Tinggi</span>
+                <span className="legend-dot" style={{ background: '#F5C842' }} /> <span>Sedang</span>
+                <span className="legend-dot" style={{ background: '#3B6D11' }} /> <span>Aman</span>
+              </div>
+            </div>
+
+            {/* ── ALERT PANEL ── */}
+            <div className="card">
+              <div className="card-title">🔔 Alert Aktif</div>
+              {ALERTS.map(a => (
+                <div key={a.id} className="alert-row">
+                  <div className="alert-dot" style={{ background: riskColor(a.level) }} />
+                  <div className="alert-body">
+                    <div className="alert-title">{a.kelurahan} — Skor {a.risk}/100</div>
+                    <div className="alert-msg">{a.message}</div>
+                    <div className="alert-time">{a.time}</div>
+                  </div>
+                  <button className="btn-ack">Tandai</button>
+                </div>
+              ))}
+
+              {/* ── DETECTION STATS ── */}
+              <div className="card-title" style={{ marginTop: 20 }}>📷 Deteksi Hari Ini</div>
+              <div className="stats-grid">
+                <div className="stat-item red-bg">
+                  <div className="stat-val">{stats?.severely_blocked ?? 12}</div>
+                  <div className="stat-lbl">Sangat Tersumbat</div>
+                </div>
+                <div className="stat-item amber-bg">
+                  <div className="stat-val">{stats?.blocked ?? 23}</div>
+                  <div className="stat-lbl">Tersumbat</div>
+                </div>
+                <div className="stat-item yellow-bg">
+                  <div className="stat-val">{stats?.partial ?? 31}</div>
+                  <div className="stat-lbl">Sebagian</div>
+                </div>
+                <div className="stat-item green-bg">
+                  <div className="stat-val">{stats?.clear ?? 21}</div>
+                  <div className="stat-lbl">Bersih</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* ── MAINTENANCE QUEUE ── */}
+          <div className="card">
+            <div className="card-title">🔧 Antrian Maintenance Hari Ini</div>
+            <table className="queue-table">
+              <thead>
+                <tr>
+                  <th>Prioritas</th>
+                  <th>Lokasi</th>
+                  <th>Tim</th>
+                  <th>Est. Waktu</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                {QUEUE.map(q => (
+                  <tr key={q.id}>
+                    <td><span className="priority-badge" style={priorityStyle(q.priority)}>{q.priority}</span></td>
+                    <td>{q.location}</td>
+                    <td>{q.team}</td>
+                    <td>{q.hours} jam</td>
+                    <td>
+                      <span className={`status-badge status-${q.status}`}>
+                        {q.status === 'assigned'    ? 'Ditugaskan' :
+                         q.status === 'in_progress' ? 'Sedang Dikerjakan' : 'Menunggu'}
+                      </span>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
+        </main>
+      </div>
+    </div>
+  )
+}
