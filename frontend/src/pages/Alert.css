@@ -1,0 +1,64 @@
+.alert-wrap { min-height: 100vh; background: #f0f4f8; display: flex; flex-direction: column; }
+
+.alert-topbar { background: #1F4E79; padding: 12px 20px; display: flex; align-items: center; justify-content: space-between; }
+.alert-back { color: #B5D4F4; font-size: 13px; text-decoration: none; }
+.alert-back:hover { color: #E6F1FB; }
+.alert-title { color: #E6F1FB; font-size: 15px; font-weight: 600; }
+.alert-count { color: #93C5E8; font-size: 12px; }
+
+.alert-body { max-width: 800px; margin: 0 auto; padding: 20px 16px; width: 100%; display: flex; flex-direction: column; gap: 16px; }
+
+/* SUMMARY */
+.alert-summary { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+.ascard { border-radius: 10px; padding: 12px; text-align: center; border: 1px solid #e2e8f0; background: #fff; }
+.ascard-val { font-size: 26px; font-weight: 600; }
+.ascard-lbl { font-size: 11px; margin-top: 4px; color: #64748b; }
+.ascard.critical { border-top: 3px solid #E24B4A; }
+.ascard.critical .ascard-val { color: #A32D2D; }
+.ascard.high { border-top: 3px solid #EF9F27; }
+.ascard.high .ascard-val { color: #633806; }
+.ascard.unread { border-top: 3px solid #1F4E79; }
+.ascard.unread .ascard-val { color: #1F4E79; }
+.ascard.total { border-top: 3px solid #64748b; }
+.ascard.total .ascard-val { color: #374151; }
+
+/* RISK SECTION */
+.risk-section { background: #fff; border-radius: 10px; padding: 16px; border: 1px solid #e2e8f0; }
+.section-title { font-size: 13px; font-weight: 600; color: #1F4E79; margin-bottom: 12px; }
+.risk-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+.risk-card { background: #f8fafc; border-radius: 8px; padding: 10px 12px; }
+.risk-name { font-size: 12px; font-weight: 500; color: #374151; margin-bottom: 4px; }
+.risk-score { font-size: 22px; font-weight: 600; margin-bottom: 4px; }
+.risk-badge { font-size: 10px; padding: 2px 8px; border-radius: 10px; display: inline-block; font-weight: 500; }
+
+/* CONTROLS */
+.alert-controls { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px; }
+.filter-row { display: flex; gap: 6px; flex-wrap: wrap; }
+.filter-btn { font-size: 11px; padding: 5px 10px; border-radius: 20px; border: 1px solid #e2e8f0; background: #fff; color: #64748b; cursor: pointer; font-family: inherit; transition: all .15s; }
+.filter-btn:hover { border-color: #1F4E79; color: #1F4E79; }
+.filter-btn.active { background: #1F4E79; color: #fff; border-color: #1F4E79; }
+.btn-ack-all { font-size: 12px; padding: 6px 14px; border-radius: 8px; border: 1px solid #97C459; background: #EAF3DE; color: #27500A; cursor: pointer; font-family: inherit; font-weight: 500; }
+.btn-ack-all:hover { background: #d4edda; }
+
+/* ALERT LIST */
+.alert-list { display: flex; flex-direction: column; gap: 10px; }
+.alert-empty { text-align: center; padding: 40px; color: #94a3b8; font-size: 13px; background: #fff; border-radius: 10px; }
+
+.alert-item { background: #fff; border-radius: 10px; padding: 14px 16px; border: 1px solid #e2e8f0; display: flex; flex-direction: column; gap: 8px; }
+.alert-item.unread-item { border-left: 4px solid #E24B4A; }
+.alert-item.read { opacity: 0.75; }
+
+.alert-item-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; }
+.alert-item-left { display: flex; align-items: flex-start; gap: 10px; }
+.alert-icon { font-size: 22px; flex-shrink: 0; }
+.alert-item-title { font-size: 13px; font-weight: 500; color: #1a202c; display: flex; align-items: center; gap: 6px; }
+.alert-item-time { font-size: 11px; color: #94a3b8; margin-top: 2px; }
+.new-badge { font-size: 9px; background: #E24B4A; color: #fff; padding: 1px 6px; border-radius: 10px; font-weight: 600; }
+.risk-score-badge { font-size: 11px; padding: 3px 10px; border-radius: 20px; font-weight: 500; white-space: nowrap; }
+
+.alert-item-msg { font-size: 12px; color: #374151; line-height: 1.5; padding-left: 32px; }
+.alert-item-footer { display: flex; align-items: center; justify-content: space-between; padding-left: 32px; }
+.blockage-info { font-size: 11px; color: #64748b; }
+.btn-ack { font-size: 11px; padding: 4px 10px; border-radius: 6px; border: 1px solid #e2e8f0; background: #f8fafc; color: #64748b; cursor: pointer; font-family: inherit; }
+.btn-ack:hover { background: #e2e8f0; }
+.ack-label { font-size: 11px; color: #27500A; }

@@ -86,7 +86,7 @@ export default function Dashboard() {
           <a href="/"        className="nav-item active">📊 Dashboard</a>
           <a href="/upload"  className="nav-item">📷 Upload Foto</a>
           <a href="/history" className="nav-item">🕐 Riwayat</a>
-          <div className="nav-item">🔔 Alert <span className="nav-badge">3</span></div>
+          <a href="/alert" className="nav-item">🔔 Alert <span className="nav-badge">3</span></a>
           <div className="nav-item">📈 Analitik</div>
           <div className="nav-item">📄 Laporan</div>
         </nav>
