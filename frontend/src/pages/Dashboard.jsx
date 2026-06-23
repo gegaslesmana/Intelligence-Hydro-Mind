@@ -5,18 +5,17 @@ import './Dashboard.css'
 
 const API = 'https://drain-eye-production.up.railway.app'
 
-// data peta kelurahan simulasi
 const KELURAHAN_DATA = [
-  { name: 'Pluit',           risk: 91, level: 'critical' },
-  { name: 'Koja',            risk: 84, level: 'critical' },
-  { name: 'Tambora',         risk: 72, level: 'high'     },
-  { name: 'Cilincing',       risk: 65, level: 'high'     },
-  { name: 'Palmerah',        risk: 58, level: 'high'     },
-  { name: 'Penjaringan',     risk: 53, level: 'high'     },
-  { name: 'Mampang',         risk: 44, level: 'moderate' },
-  { name: 'Senen',           risk: 38, level: 'moderate' },
-  { name: 'Tebet',           risk: 28, level: 'low'      },
-  { name: 'Pasar Minggu',    risk: 21, level: 'low'      },
+  { name: 'Pluit',        risk: 91, level: 'critical' },
+  { name: 'Koja',         risk: 84, level: 'critical' },
+  { name: 'Tambora',      risk: 72, level: 'high'     },
+  { name: 'Cilincing',    risk: 65, level: 'high'     },
+  { name: 'Palmerah',     risk: 58, level: 'high'     },
+  { name: 'Penjaringan',  risk: 53, level: 'high'     },
+  { name: 'Mampang',      risk: 44, level: 'moderate' },
+  { name: 'Senen',        risk: 38, level: 'moderate' },
+  { name: 'Tebet',        risk: 28, level: 'low'      },
+  { name: 'Pasar Minggu', risk: 21, level: 'low'      },
 ]
 
 const ALERTS = [
@@ -34,44 +33,69 @@ const QUEUE = [
 ]
 
 const riskColor = (level) => ({
-  critical: '#E24B4A',
-  high:     '#EF9F27',
-  moderate: '#F5C842',
-  low:      '#3B6D11',
+  critical: '#ff4d4d',
+  high:     '#ff9f43',
+  moderate: '#feca57',
+  low:      '#1dd1a1',
 }[level] || '#64748b')
 
-const priorityStyle = (p) => ({
-  P1: { background: '#FCEBEB', color: '#A32D2D' },
-  P2: { background: '#FAEEDA', color: '#633806' },
-  P3: { background: '#EAF3DE', color: '#27500A' },
-}[p] || {})
-
 export default function Dashboard() {
+  // Pindahkan seluruh state & fungsi chatbot ke dalam fungsi komponen ini:
   const [summary, setSummary] = useState(null)
   const [stats, setStats]     = useState(null)
   const [time, setTime]       = useState(new Date())
+  const [currentSlide, setCurrentSlide] = useState(0)
+
+  const [chatOpen, setChatOpen] = useState(false)
+  const [chatInput, setChatInput] = useState('')
+  const [chatMessages, setChatMessages] = useState([
+    { sender: 'bot', text: 'Halo Warga DKI Jakarta! Ada saran, masukan, atau laporan seputar kondisi drainase hari ini?' }
+  ])
+
+  const handleSendMessage = () => {
+    if (!chatInput.trim()) return
+
+    const userMsg = { sender: 'user', text: chatInput }
+    setChatMessages(prev => [...prev, userMsg])
+    setChatInput('')
+
+    // Simulasi respons AI pintar setelah 1 detik
+    setTimeout(() => {
+      setChatMessages(prev => [...prev, {
+        sender: 'bot',
+        text: 'Terima kasih atas masukannya. Saran Anda telah direkam oleh sistem DRAIN-EYE untuk diteruskan ke posko dinas terkait.'
+      }])
+    }, 1000)
+  }
 
   useEffect(() => {
-    // fetch dari backend
     axios.get(`${API}/api/dashboard/summary`).then(r => setSummary(r.data)).catch(() => {})
     axios.get(`${API}/api/detection/stats`).then(r => setStats(r.data)).catch(() => {})
 
-    // update jam setiap detik
     const timer = setInterval(() => setTime(new Date()), 1000)
-    return () => clearInterval(timer)
+    
+    // Auto-play slider setiap 4 detik
+    const slideTimer = setInterval(() => {
+      setCurrentSlide((prev) => (prev + 1) % ALERTS.length)
+    }, 4000)
+
+    return () => {
+      clearInterval(timer)
+      clearInterval(slideTimer)
+    }
   }, [])
 
   const fmtTime = t => t.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', second: '2-digit' })
 
   return (
     <div className="dash-wrap">
-
+      
       {/* ── TOPBAR ── */}
       <header className="topbar">
         <div className="topbar-left">
-          <span className="topbar-logo">💧</span>
+          <div className="logo-pulse">💧</div>
           <span className="topbar-title">DRAIN-EYE</span>
-          <span className="topbar-sub">Dashboard DLH DKI Jakarta</span>
+          <span className="topbar-sub">DLH DKI Jakarta Platform</span>
         </div>
         <div className="topbar-right">
           <span className="topbar-time">🕐 {fmtTime(time)} WIB</span>
@@ -80,7 +104,7 @@ export default function Dashboard() {
       </header>
 
       <div className="dash-body">
-
+        
         {/* ── SIDEBAR ── */}
         <nav className="sidebar">
           <a href="/"        className="nav-item active">📊 Dashboard</a>
@@ -94,41 +118,84 @@ export default function Dashboard() {
         {/* ── MAIN CONTENT ── */}
         <main className="main-content">
 
+          {/* ── MODERN BANNER SLIDER ── */}
+          <div className="modern-slider">
+            {ALERTS.map((slide, idx) => (
+              <div 
+                key={slide.id} 
+                className={`slide-item ${idx === currentSlide ? 'active' : ''}`}
+                style={{ '--accent-color': riskColor(slide.level) }}
+              >
+                <div className="slide-content">
+                  <span className="slide-tag">CRITICAL HOTSPOT</span>
+                  <h2>Wilayah {slide.kelurahan} Butuh Evakuasi Pembersihan</h2>
+                  <p>{slide.message}</p>
+                  <div className="slide-meta">
+                    <span>Skor Risiko: <strong>{slide.risk}/100</strong></span>
+                    <span>•</span>
+                    <span>Waktu Laporan: {slide.time}</span>
+                  </div>
+                </div>
+                <div className="slide-visual">
+                  <div className="radar-pulse"></div>
+                </div>
+              </div>
+            ))}
+            <div className="slider-dots">
+              {ALERTS.map((_, idx) => (
+                <button 
+                  key={idx} 
+                  className={`dot ${idx === currentSlide ? 'active' : ''}`}
+                  onClick={() => setCurrentSlide(idx)}
+                />
+              ))}
+            </div>
+          </div>
+
           {/* ── METRIC CARDS ── */}
           <div className="metrics-row">
-            <div className="metric-card">
-              <div className="metric-val red">{summary?.total_active_blockages ?? 87}</div>
-              <div className="metric-lbl">Titik tersumbat aktif</div>
-              <div className="metric-tag red-tag">+12 hari ini</div>
+            <div className="metric-card glass-card card-red">
+              <div className="metric-val">{summary?.total_active_blockages ?? 87}</div>
+              <div className="metric-lbl">Titik Tersumbat Aktif</div>
+              <div className="metric-tag">+12 Hari Ini</div>
             </div>
-            <div className="metric-card">
-              <div className="metric-val amber">{summary?.total_high_risk_areas ?? 23}</div>
-              <div className="metric-lbl">Risiko tinggi</div>
-              <div className="metric-tag amber-tag">Perlu segera</div>
+            <div className="metric-card glass-card card-amber">
+              <div className="metric-val">{summary?.total_high_risk_areas ?? 23}</div>
+              <div className="metric-lbl">Wilayah Risiko Tinggi</div>
+              <div className="metric-tag">Perlu Tindakan</div>
             </div>
-            <div className="metric-card">
-              <div className="metric-val green">{summary?.total_completed_today ?? 41}</div>
-              <div className="metric-lbl">Selesai ditangani</div>
-              <div className="metric-tag green-tag">Minggu ini</div>
+            <div className="metric-card glass-card card-green">
+              <div className="metric-val">{summary?.total_completed_today ?? 41}</div>
+              <div className="metric-lbl">Selesai Ditangani</div>
+              <div className="metric-tag">Minggu Ini</div>
             </div>
-            <div className="metric-card">
+            <div className="metric-card glass-card card-cyan">
               <div className="metric-val">{summary?.total_citizen_reports ?? 1200}</div>
-              <div className="metric-lbl">Laporan warga</div>
-              <div className="metric-tag gray-tag">Total</div>
+              <div className="metric-lbl">Total Laporan Warga</div>
+              <div className="metric-tag">Basis Data</div>
             </div>
           </div>
 
           <div className="grid-2">
-
             {/* ── CHART RISIKO ── */}
-            <div className="card">
+            <div className="card glass-card">
               <div className="card-title">📊 Risk Score per Kelurahan</div>
-              <ResponsiveContainer width="100%" height={240}>
-                <BarChart data={KELURAHAN_DATA} layout="vertical" margin={{ left: 16, right: 24 }}>
-                  <XAxis type="number" domain={[0, 100]} tick={{ fontSize: 11 }} />
-                  <YAxis type="category" dataKey="name" tick={{ fontSize: 11 }} width={88} />
-                  <Tooltip formatter={(v) => [`${v}/100`, 'Risk Score']} />
-                  <Bar dataKey="risk" radius={[0, 4, 4, 0]}>
+              <ResponsiveContainer width="100%" height={260}>
+                <BarChart data={KELURAHAN_DATA} layout="vertical" margin={{ left: 10, right: 20, top: 10 }}>
+                  <XAxis type="number" domain={[0, 100]} tick={{ fill: '#94a3b8', fontSize: 11 }} axisLine={false} tickLine={false} />
+                  <YAxis type="category" dataKey="name" tick={{ fill: '#94a3b8', fontSize: 11 }} width={85} axisLine={false} tickLine={false} />
+                  <Tooltip 
+                    contentStyle={{ 
+                      background: '#0b132b',
+                      borderColor: '#00d2ff',
+                      borderRadius: '12px',
+                      boxShadow: '0 10px 25px rgba(0,0,0,0.5)'
+                    }}
+                    itemStyle={{ color: '#00d2ff', fontWeight: '600', fontSize: '13px' }}
+                    labelStyle={{ color: '#fff', fontWeight: '700', fontSize: '14px', marginBottom: '4px' }}
+                    formatter={(v) => [`${v}/100`, 'Risk Score']} 
+                  />
+                  <Bar dataKey="risk" radius={[0, 6, 6, 0]} barSize={12}>
                     {KELURAHAN_DATA.map((d, i) => (
                       <Cell key={i} fill={riskColor(d.level)} />
                     ))}
@@ -136,85 +203,129 @@ export default function Dashboard() {
                 </BarChart>
               </ResponsiveContainer>
               <div className="legend-row">
-                <span className="legend-dot" style={{ background: '#E24B4A' }} /> <span>Kritis</span>
-                <span className="legend-dot" style={{ background: '#EF9F27' }} /> <span>Tinggi</span>
-                <span className="legend-dot" style={{ background: '#F5C842' }} /> <span>Sedang</span>
-                <span className="legend-dot" style={{ background: '#3B6D11' }} /> <span>Aman</span>
+                <span className="legend-item"><span className="legend-dot" style={{ background: '#ff4d4d' }} />Kritis</span>
+                <span className="legend-item"><span className="legend-dot" style={{ background: '#ff9f43' }} />Tinggi</span>
+                <span className="legend-item"><span className="legend-dot" style={{ background: '#feca57' }} />Sedang</span>
+                <span className="legend-item"><span className="legend-dot" style={{ background: '#1dd1a1' }} />Aman</span>
               </div>
             </div>
 
-            {/* ── ALERT PANEL ── */}
-            <div className="card">
-              <div className="card-title">🔔 Alert Aktif</div>
-              {ALERTS.map(a => (
-                <div key={a.id} className="alert-row">
-                  <div className="alert-dot" style={{ background: riskColor(a.level) }} />
-                  <div className="alert-body">
-                    <div className="alert-title">{a.kelurahan} — Skor {a.risk}/100</div>
-                    <div className="alert-msg">{a.message}</div>
-                    <div className="alert-time">{a.time}</div>
-                  </div>
-                  <button className="btn-ack">Tandai</button>
-                </div>
-              ))}
-
-              {/* ── DETECTION STATS ── */}
-              <div className="card-title" style={{ marginTop: 20 }}>📷 Deteksi Hari Ini</div>
+            {/* ── ALERT PANEL & STATS ── */}
+            <div className="card glass-card flex-col">
+              <div className="card-title">📷 Status Deteksi Kamera Hari Ini</div>
               <div className="stats-grid">
-                <div className="stat-item red-bg">
+                <div className="stat-box s-red">
                   <div className="stat-val">{stats?.severely_blocked ?? 12}</div>
-                  <div className="stat-lbl">Sangat Tersumbat</div>
+                  <div className="stat-lbl">Parah</div>
                 </div>
-                <div className="stat-item amber-bg">
+                <div className="stat-box s-amber">
                   <div className="stat-val">{stats?.blocked ?? 23}</div>
                   <div className="stat-lbl">Tersumbat</div>
                 </div>
-                <div className="stat-item yellow-bg">
+                <div className="stat-box s-yellow">
                   <div className="stat-val">{stats?.partial ?? 31}</div>
                   <div className="stat-lbl">Sebagian</div>
                 </div>
-                <div className="stat-item green-bg">
+                <div className="stat-box s-green">
                   <div className="stat-val">{stats?.clear ?? 21}</div>
                   <div className="stat-lbl">Bersih</div>
                 </div>
+              </div>
+
+              <div className="card-title" style={{ marginTop: '25px' }}>🔔 Log Pemberitahuan Cepat</div>
+              <div className="mini-alert-list">
+                {ALERTS.slice(0, 2).map(a => (
+                  <div key={a.id} className="mini-alert-item">
+                    <span className="alert-badge" style={{ backgroundColor: riskColor(a.level) }} />
+                    <div className="mini-alert-text">
+                      <h6>{a.kelurahan}</h6>
+                      <p>{a.message}</p>
+                    </div>
+                  </div>
+                ))}
               </div>
             </div>
           </div>
 
           {/* ── MAINTENANCE QUEUE ── */}
-          <div className="card">
-            <div className="card-title">🔧 Antrian Maintenance Hari Ini</div>
-            <table className="queue-table">
-              <thead>
-                <tr>
-                  <th>Prioritas</th>
-                  <th>Lokasi</th>
-                  <th>Tim</th>
-                  <th>Est. Waktu</th>
-                  <th>Status</th>
-                </tr>
-              </thead>
-              <tbody>
-                {QUEUE.map(q => (
-                  <tr key={q.id}>
-                    <td><span className="priority-badge" style={priorityStyle(q.priority)}>{q.priority}</span></td>
-                    <td>{q.location}</td>
-                    <td>{q.team}</td>
-                    <td>{q.hours} jam</td>
-                    <td>
-                      <span className={`status-badge status-${q.status}`}>
-                        {q.status === 'assigned'    ? 'Ditugaskan' :
-                         q.status === 'in_progress' ? 'Sedang Dikerjakan' : 'Menunggu'}
-                      </span>
-                    </td>
+          <div className="card glass-card">
+            <div className="card-title">🔧 Jadwal Distribusi Tim Lapangan</div>
+            <div className="table-responsive">
+              <table className="queue-table">
+                <thead>
+                  <tr>
+                    <th>Prioritas</th>
+                    <th>Lokasi Penugasan</th>
+                    <th>Tim DLH</th>
+                    <th>Estimasi Kerja</th>
+                    <th>Status Operasional</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody>
+                  {QUEUE.map(q => (
+                    <tr key={q.id}>
+                      <td>
+                        <span className={`p-badge p-${q.priority.toLowerCase()}`}>
+                          {q.priority}
+                        </span>
+                      </td>
+                      <td className="bold-text">{q.location}</td>
+                      <td><span className="team-tag">{q.team}</span></td>
+                      <td>{q.hours} Jam</td>
+                      <td>
+                        <span className={`status-pill pill-${q.status}`}>
+                          {q.status === 'assigned' ? 'Alokasi' : q.status === 'in_progress' ? 'Eksekusi' : 'Antre'}
+                        </span>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </div>
 
         </main>
       </div>
+
+      {/* ── FLOATING AI CHATBOT ── */}
+      <div className={`ai-chat-wrapper ${chatOpen ? 'open' : ''}`}>
+        {chatOpen ? (
+          <div className="chat-window">
+            <div className="chat-header">
+              <div className="chat-header-title">
+                <span className="bot-status-dot"></span>
+                <h6>💧 DRAIN-EYE AI Agent</h6>
+              </div>
+              <button className="btn-close-chat" onClick={() => setChatOpen(false)}>×</button>
+            </div>
+
+            <div className="chat-messages-box">
+              {chatMessages.map((msg, idx) => (
+                <div key={idx} className={`chat-bubble ${msg.sender}`}>
+                  {msg.text}
+                </div>
+              ))}
+            </div>
+
+            <div className="chat-input-area">
+              <input 
+                type="text" 
+                placeholder="Tulis saran atau masukan warga..." 
+                value={chatInput}
+                onChange={e => setChatInput(e.target.value)}
+                onKeyDown={e => e.key === 'Enter' && handleSendMessage()}
+              />
+              <button className="btn-send-chat" onClick={handleSendMessage}>🚀</button>
+            </div>
+          </div>
+        ) : (
+          <button className="chat-trigger-btn" onClick={() => setChatOpen(true)}>
+            <span className="chat-icon">💬</span>
+            <span className="chat-text">Tanya AI & Saran</span>
+          </button>
+        )}
+      </div>
+
     </div>
   )
 }

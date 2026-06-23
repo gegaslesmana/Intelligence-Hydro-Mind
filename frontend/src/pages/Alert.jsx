@@ -5,13 +5,12 @@ import './Alert.css'
 const API = 'https://drain-eye-production.up.railway.app'
 
 const RISK_LABELS = {
-  low:      { label: 'Rendah',  color: '#27500A', bg: '#EAF3DE', icon: '🟢' },
-  moderate: { label: 'Sedang',  color: '#633806', bg: '#FAEEDA', icon: '🟠' },
-  high:     { label: 'Tinggi',  color: '#A32D2D', bg: '#FCEBEB', icon: '🔴' },
-  critical: { label: 'Kritis',  color: '#7B1D1D', bg: '#FEE2E2', icon: '🚨' },
+  low:      { label: 'Aman',    color: '#1dd1a1', bg: 'rgba(29, 209, 161, 0.15)', icon: '🟢' },
+  moderate: { label: 'Sedang',  color: '#feca57', bg: 'rgba(254, 202, 87, 0.15)', icon: '🟠' },
+  high:     { label: 'Tinggi',  color: '#ff9f43', bg: 'rgba(255, 159, 67, 0.15)', icon: '🔴' },
+  critical: { label: 'Kritis',  color: '#ff4d4d', bg: 'rgba(255, 77, 77, 0.15)',  icon: '🚨' },
 }
 
-// dummy alerts — nanti bisa disambung ke backend
 const DUMMY_ALERTS = [
   {
     id: 'ALT001',
@@ -77,7 +76,6 @@ export default function Alert() {
   const [loading, setLoading]       = useState(true)
 
   useEffect(() => {
-    // fetch risk score dari backend
     axios.get(`${API}/api/risk/all`)
       .then(r => setRiskData(r.data.data || []))
       .catch(() => {})
@@ -111,125 +109,152 @@ export default function Alert() {
   }
 
   return (
-    <div className="alert-wrap">
-      <header className="alert-topbar">
-        <a href="/" className="alert-back">← Kembali</a>
-        <span className="alert-title">🔔 Pusat Alert</span>
-        <span className="alert-count">{unreadCount} belum dibaca</span>
+    <div className="dash-wrap">
+      {/* ── TOPBAR ── */}
+      <header className="topbar">
+        <div className="topbar-left">
+          <a href="/" className="btn-back-link">← Kembali</a>
+          <span className="topbar-title" style={{ marginLeft: '10px' }}>🔔 Pusat Alert Wilayah</span>
+        </div>
+        <div className="topbar-right">
+          <span className="topbar-time">📬 {unreadCount} Belum Dibaca</span>
+        </div>
       </header>
 
-      <div className="alert-body">
+      <div className="dash-body">
+        {/* ── SIDEBAR ── */}
+        <nav className="sidebar">
+          <a href="/"        className="nav-item">📊 Dashboard</a>
+          <a href="/upload"  className="nav-item">📷 Upload Foto</a>
+          <a href="/history" className="nav-item">🕐 Riwayat</a>
+          <div className="nav-item active">🔔 Alert <span className="nav-badge">{unreadCount}</span></div>
+          <div className="nav-item">📈 Analitik</div>
+          <div className="nav-item">📄 Laporan</div>
+        </nav>
 
-        {/* SUMMARY CARDS */}
-        <div className="alert-summary">
-          <div className="ascard critical">
-            <div className="ascard-val">{alerts.filter(a => a.risk_level === 'critical').length}</div>
-            <div className="ascard-lbl">🚨 Kritis</div>
+        {/* ── MAIN CONTENT ── */}
+        <main className="main-content">
+          
+          {/* ── METRIC SUMMARY CARDS ── */}
+          <div className="metrics-row">
+            <div className="metric-card glass-card card-red">
+              <div className="metric-val">{alerts.filter(a => a.risk_level === 'critical').length}</div>
+              <div className="metric-lbl">Kritis</div>
+              <div className="metric-tag">Butuh Tindakan</div>
+            </div>
+            <div className="metric-card glass-card card-amber">
+              <div className="metric-val">{alerts.filter(a => a.risk_level === 'high').length}</div>
+              <div className="metric-lbl">Risiko Tinggi</div>
+              <div className="metric-tag">Pantauan Ketat</div>
+            </div>
+            <div className="metric-card glass-card card-cyan">
+              <div className="metric-val">{unreadCount}</div>
+              <div className="metric-lbl">Belum Dibaca</div>
+              <div className="metric-tag">Log Masuk</div>
+            </div>
+            <div className="metric-card glass-card card-green">
+              <div className="metric-val">{alerts.length}</div>
+              <div className="metric-lbl">Total Alert</div>
+              <div className="metric-tag">Sistem Drain-Eye</div>
+            </div>
           </div>
-          <div className="ascard high">
-            <div className="ascard-val">{alerts.filter(a => a.risk_level === 'high').length}</div>
-            <div className="ascard-lbl">🔴 Tinggi</div>
-          </div>
-          <div className="ascard unread">
-            <div className="ascard-val">{unreadCount}</div>
-            <div className="ascard-lbl">📬 Belum Dibaca</div>
-          </div>
-          <div className="ascard total">
-            <div className="ascard-val">{alerts.length}</div>
-            <div className="ascard-lbl">📋 Total Alert</div>
-          </div>
-        </div>
 
-        {/* RISK SCORE DARI LSTM */}
-        {!loading && riskData.length > 0 && (
-          <div className="risk-section">
-            <div className="section-title">📊 Risk Score Real-time per Kelurahan</div>
-            <div className="risk-grid">
-              {riskData.slice(0, 6).map((r, i) => (
-                <div key={i} className="risk-card" style={{
-                  borderLeft: `4px solid ${RISK_LABELS[r.risk_level]?.color}`
-                }}>
-                  <div className="risk-name">{r.kelurahan}</div>
-                  <div className="risk-score" style={{ color: RISK_LABELS[r.risk_level]?.color }}>
-                    {r.risk_score}
-                  </div>
-                  <div className="risk-badge" style={{
-                    background: RISK_LABELS[r.risk_level]?.bg,
-                    color: RISK_LABELS[r.risk_level]?.color
+          {/* ── REAL-TIME RISK SCORE FROM LSTM ── */}
+          {!loading && riskData.length > 0 && (
+            <div className="card glass-card" style={{ marginBottom: '20px' }}>
+              <div className="card-title">📊 Risk Score Real-time per Kelurahan (Prediksi AI)</div>
+              <div className="risk-grid-modern">
+                {riskData.slice(0, 6).map((r, i) => (
+                  <div key={i} className="risk-card-modern" style={{
+                    borderColor: RISK_LABELS[r.risk_level]?.color
                   }}>
-                    {RISK_LABELS[r.risk_level]?.icon} {RISK_LABELS[r.risk_level]?.label}
+                    <div className="risk-name-modern">{r.kelurahan}</div>
+                    <div className="risk-score-modern" style={{ color: RISK_LABELS[r.risk_level]?.color }}>
+                      {r.risk_score}<span style={{ fontSize: '12px', color: '#94a3b8' }}>/100</span>
+                    </div>
+                    <div className="risk-badge-modern" style={{
+                      background: RISK_LABELS[r.risk_level]?.bg,
+                      color: RISK_LABELS[r.risk_level]?.color
+                    }}>
+                      {RISK_LABELS[r.risk_level]?.icon} {RISK_LABELS[r.risk_level]?.label}
+                    </div>
                   </div>
-                </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* ── FILTER CONTROLS ── */}
+          <div className="alert-controls-row">
+            <div className="filter-buttons-group">
+              {['all', 'unread', 'critical', 'high'].map(f => (
+                <button
+                  key={f}
+                  className={`filter-tab-btn ${filter === f ? 'active' : ''}`}
+                  onClick={() => setFilter(f)}
+                >
+                  {f === 'all'      ? '📋 Semua'        :
+                   f === 'unread'   ? `📬 Belum Dibaca (${unreadCount})` :
+                   f === 'critical' ? '🚨 Kritis'    : '🔴 Tinggi'}
+                </button>
               ))}
             </div>
-          </div>
-        )}
-
-        {/* FILTER & ACTIONS */}
-        <div className="alert-controls">
-          <div className="filter-row">
-            {['all', 'unread', 'critical', 'high'].map(f => (
-              <button
-                key={f}
-                className={`filter-btn ${filter === f ? 'active' : ''}`}
-                onClick={() => setFilter(f)}
-              >
-                {f === 'all'      ? 'Semua'        :
-                 f === 'unread'   ? `📬 Belum Dibaca (${unreadCount})` :
-                 f === 'critical' ? '🚨 Kritis'    : '🔴 Tinggi'}
+            {unreadCount > 0 && (
+              <button className="btn-upload" style={{ background: '#1dd1a1', border: 'none' }} onClick={acknowledgeAll}>
+                ✅ Tandai Semua Dibaca
               </button>
-            ))}
+            )}
           </div>
-          {unreadCount > 0 && (
-            <button className="btn-ack-all" onClick={acknowledgeAll}>
-              ✅ Tandai Semua Dibaca
-            </button>
-          )}
-        </div>
 
-        {/* ALERT LIST */}
-        <div className="alert-list">
-          {filtered.length === 0 && (
-            <div className="alert-empty">✅ Tidak ada alert yang sesuai filter</div>
-          )}
-          {filtered.map(a => (
-            <div key={a.id} className={`alert-item ${a.is_acknowledged ? 'read' : 'unread-item'}`}>
-              <div className="alert-item-header">
-                <div className="alert-item-left">
-                  <span className="alert-icon">{RISK_LABELS[a.risk_level]?.icon}</span>
-                  <div>
-                    <div className="alert-item-title">
-                      {a.kelurahan}, {a.kecamatan}
-                      {!a.is_acknowledged && <span className="new-badge">BARU</span>}
+          {/* ── ALERT LIST CONTENT ── */}
+          <div className="alert-list-container">
+            {filtered.length === 0 && (
+              <div className="card glass-card alert-empty-state">
+                <span>✅ Semua aman! Tidak ada log peringatan yang sesuai filter.</span>
+              </div>
+            )}
+            
+            {filtered.map(a => (
+              <div key={a.id} className={`alert-item-card glass-card ${a.is_acknowledged ? 'status-read' : 'status-unread'}`}>
+                <div className="alert-item-main-header">
+                  <div className="alert-item-title-area">
+                    <span className="alert-avatar-icon">{RISK_LABELS[a.risk_level]?.icon}</span>
+                    <div>
+                      <h4>{a.kelurahan}, <span className="sub-kecamatan">Kec. {a.kecamatan}</span></h4>
+                      <span className="alert-timestamp">⏱ {fmtTime(a.triggered_at)}</span>
                     </div>
-                    <div className="alert-item-time">{fmtTime(a.triggered_at)}</div>
+                  </div>
+                  <div>
+                    <span className="risk-score-pill" style={{
+                      background: RISK_LABELS[a.risk_level]?.bg,
+                      color: RISK_LABELS[a.risk_level]?.color,
+                      border: `1px solid ${RISK_LABELS[a.risk_level]?.color}`
+                    }}>
+                      Skor Risiko: {a.risk_score}/100
+                    </span>
                   </div>
                 </div>
-                <div className="alert-item-right">
-                  <span className="risk-score-badge" style={{
-                    background: RISK_LABELS[a.risk_level]?.bg,
-                    color: RISK_LABELS[a.risk_level]?.color
-                  }}>
-                    Skor {a.risk_score}/100
+
+                <p className="alert-message-text">{a.message}</p>
+
+                <div className="alert-item-footer-action">
+                  <span className="blockage-percentage-tag">
+                    🪠 Rasio Sumbatan: <strong>{a.blockage_pct}%</strong>
                   </span>
+                  
+                  {!a.is_acknowledged ? (
+                    <button className="btn-action-ack" onClick={() => acknowledge(a.id)}>
+                      Tandai Telah Diperiksa ✓
+                    </button>
+                  ) : (
+                    <span className="archived-check-label">Selesai Ditinjau</span>
+                  )}
                 </div>
               </div>
-              <div className="alert-item-msg">{a.message}</div>
-              <div className="alert-item-footer">
-                <span className="blockage-info">⛽ Sumbatan: {a.blockage_pct}%</span>
-                {!a.is_acknowledged && (
-                  <button className="btn-ack" onClick={() => acknowledge(a.id)}>
-                    ✅ Tandai Dibaca
-                  </button>
-                )}
-                {a.is_acknowledged && (
-                  <span className="ack-label">✅ Sudah dibaca</span>
-                )}
-              </div>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
 
+        </main>
       </div>
     </div>
   )
