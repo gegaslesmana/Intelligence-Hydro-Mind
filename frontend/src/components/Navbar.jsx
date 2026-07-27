@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useAuth } from '../AuthContext'
+import './Navbar.css'
 
 export default function Navbar({ title, backHref, showClock = false, showUpload = false }) {
   const { signOut, profile } = useAuth()
@@ -17,74 +18,42 @@ export default function Navbar({ title, backHref, showClock = false, showUpload 
   const fmtTime = t => t.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', second: '2-digit' })
 
   return (
-    <header style={{
-      background: '#1F4E79',
-      padding: '10px 20px',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'space-between',
-      flexWrap: 'wrap',
-      gap: 8
-    }}>
-      <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+    <header className="navbar-vvip">
+      {/* BRAND & NAVIGATION LEFT */}
+      <div className="nav-left">
         {backHref && (
-          <a href={backHref} style={{ color: '#B5D4F4', fontSize: 13, textDecoration: 'none', marginRight: 4 }}>←</a>
+          <a href={backHref} className="btn-back">
+            ←
+          </a>
         )}
-        <span style={{ fontSize: 18 }}>💧</span>
-        <span style={{ color: '#E6F1FB', fontSize: 15, fontWeight: 600 }}>
-          {title || 'DRAIN-EYE'}
-        </span>
+        <div className="nav-brand">
+          <span className="logo-icon">💧</span>
+          <span className="brand-title">{title || 'DRAIN-EYE'}</span>
+        </div>
       </div>
 
-      <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
+      {/* USER & ACTIONS RIGHT */}
+      <div className="nav-right">
         {showClock && (
-          <span style={{ color: '#B5D4F4', fontSize: 12 }}>{fmtTime(time)} WIB</span>
+          <span className="nav-clock">{fmtTime(time)} WIB</span>
         )}
 
         {shouldShowUpload && (
-          <a
-            href="/upload"
-            style={{
-              background: '#2E74B5',
-              color: '#fff',
-              border: 'none',
-              borderRadius: 8,
-              padding: '7px 14px',
-              fontSize: 12,
-              cursor: 'pointer',
-              textDecoration: 'none',
-              fontWeight: 500
-            }}
-          >
-            📷 Upload
+          <a href="/upload" className="btn-upload">
+            📷 <span className="upload-text">Upload</span>
           </a>
         )}
 
-        <div style={{ textAlign: 'right' }}>
-          <div style={{ color: '#E6F1FB', fontSize: 12, fontWeight: 500 }}>
-            {profile?.full_name || profile?.email}
-          </div>
-          <div style={{ color: '#93C5E8', fontSize: 10 }}>
-            {profile?.role === 'dlh_manager'  ? '🏛️ DLH Manager'   :
-             profile?.role === 'dlh_operator' ? '🏛️ DLH Operator'  :
+        <div className="user-profile">
+          <span className="user-name">{profile?.full_name || profile?.email}</span>
+          <span className="user-role">
+            {profile?.role === 'dlh_manager'  ? '🏛️ DLH Manager'  :
+             profile?.role === 'dlh_operator' ? '🏛️ DLH Operator' :
                                                 '👤 Warga'}
-          </div>
+          </span>
         </div>
 
-        <button
-          onClick={signOut}
-          style={{
-            background: '#E24B4A',
-            color: '#fff',
-            border: 'none',
-            borderRadius: 8,
-            padding: '6px 14px',
-            fontSize: 12,
-            cursor: 'pointer',
-            fontFamily: 'inherit',
-            fontWeight: 500
-          }}
-        >
+        <button onClick={signOut} className="btn-logout">
           Logout
         </button>
       </div>
