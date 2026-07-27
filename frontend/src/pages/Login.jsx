@@ -68,8 +68,6 @@ export default function Login() {
         .eq('id', data.user.id)
         .single()
 
-      // PENTING: kalau gagal ambil role, JANGAN diam-diam anggap 'warga'.
-      // Salah redirect DLH Manager ke halaman warga itu membingungkan.
       if (profileError) {
         setError('Berhasil masuk, tapi gagal memuat data akun kamu. Coba klik "Masuk" sekali lagi.')
         setLoading(false)
@@ -142,7 +140,7 @@ export default function Login() {
       if (error) {
         setError('Gagal mengirim link reset: ' + error.message)
       } else {
-        setSuccess('Link reset password sudah dikirim. Cek inbox email kamu (dan folder spam kalau tidak muncul).')
+        setSuccess('Link reset password sudah dikirim. Cek inbox email kamu.')
         setEmail('')
       }
     } catch (err) {
@@ -162,9 +160,15 @@ export default function Login() {
 
   return (
     <div className="login-wrap">
+      {/* Background Glow Spheres */}
+      <div className="bg-glow bg-glow-1"></div>
+      <div className="bg-glow bg-glow-2"></div>
+
       <div className="login-card">
         <div className="login-header">
-          <div className="login-logo">💧</div>
+          <div className="login-logo-badge">
+            <span className="logo-icon">💧</span>
+          </div>
           <div className="login-title">DRAIN-EYE</div>
           <div className="login-sub">Sistem Deteksi Sumbatan Drainase DKI Jakarta</div>
         </div>
@@ -191,7 +195,7 @@ export default function Login() {
         {mode === 'forgot' && (
           <div className="forgot-heading">
             <div className="forgot-title">🔑 Lupa Password</div>
-            <div className="forgot-sub">Masukkan email kamu, kami kirim link untuk reset password.</div>
+            <div className="forgot-sub">Masukkan email kamu untuk pengiriman link reset password.</div>
           </div>
         )}
 
@@ -217,7 +221,7 @@ export default function Login() {
             <input
               className={`form-input ${fieldErrors.email ? 'input-error' : ''}`}
               type="email"
-              placeholder="email@example.com"
+              placeholder="nama@email.com"
               value={email}
               onChange={e => { setEmail(e.target.value); setFieldErrors(p => ({ ...p, email: null })) }}
               onKeyDown={handleKeyDown}
@@ -263,14 +267,15 @@ export default function Login() {
           >
             {loading ? (
               <span className="btn-spinner-wrap"><span className="btn-spinner"></span> Memproses...</span>
-            ) : mode === 'login' ? '🔐 Masuk' : mode === 'register' ? '📝 Daftar' : '📧 Kirim Link Reset'}
+            ) : mode === 'login' ? 'Masuk ke Akun' : mode === 'register' ? 'Buat Akun Baru' : 'Kirim Link Reset'}
           </button>
 
           {mode === 'login' && (
             <div className="login-note">
-              Warga baru? <span className="link" onClick={() => !loading && switchMode('register')}>Daftar di sini</span>
-              <br />
-              <span className="link" onClick={() => !loading && switchMode('forgot')}>Lupa password?</span>
+              Belum punya akun? <span className="link" onClick={() => !loading && switchMode('register')}>Daftar sekarang</span>
+              <div style={{ marginTop: '6px' }}>
+                <span className="link" onClick={() => !loading && switchMode('forgot')}>Lupa password?</span>
+              </div>
             </div>
           )}
 
@@ -283,10 +288,12 @@ export default function Login() {
           {mode !== 'forgot' && (
             <div className="login-roles">
               <div className="role-info">
-                <strong>👤 Warga</strong> — Upload foto drainase & lihat riwayat
+                <strong>👤 Warga</strong>
+                <span>Upload foto drainase & pantau riwayat</span>
               </div>
               <div className="role-info">
-                <strong>🏛️ DLH Operator</strong> — Dashboard, alert & maintenance
+                <strong>🏛️ DLH Operator</strong>
+                <span>Dashboard analisis, alert & tindakan</span>
               </div>
             </div>
           )}
