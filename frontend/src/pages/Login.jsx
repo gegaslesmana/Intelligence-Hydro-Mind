@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { supabase } from '../supabase'
 import './Login.css'
 
@@ -12,6 +12,36 @@ export default function Login() {
   const [error, setError]       = useState(null)
   const [success, setSuccess]   = useState(null)
   const [fieldErrors, setFieldErrors] = useState({})
+
+  // State untuk PWA Install Prompt
+  const [deferredPrompt, setDeferredPrompt] = useState(null)
+  const [showInstallBanner, setShowInstallBanner] = useState(false)
+
+  useEffect(() => {
+    const handleBeforeInstallPrompt = (e) => {
+      // Mencegah browser langsung menampilkan prompt default
+      e.preventDefault()
+      // Simpan event agar bisa dipicu saat tombol Install diklik
+      setDeferredPrompt(e)
+      setShowInstallBanner(true)
+    }
+
+    window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt)
+
+    return () => {
+      window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt)
+    }
+  }, [])
+
+  const handleInstallClick = async () => {
+    if (!deferredPrompt) return
+    deferredPrompt.prompt()
+    const { outcome } = await deferredPrompt.userChoice
+    if (outcome === 'accepted') {
+      setShowInstallBanner(false)
+    }
+    setDeferredPrompt(null)
+  }
 
   const validateEmail = (val) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val)
 
@@ -160,15 +190,9 @@ export default function Login() {
 
   return (
     <div className="login-wrap">
-      {/* Background Glow Spheres */}
-      <div className="bg-glow bg-glow-1"></div>
-      <div className="bg-glow bg-glow-2"></div>
-
       <div className="login-card">
         <div className="login-header">
-          <div className="login-logo-badge">
-            <span className="logo-icon">💧</span>
-          </div>
+          <div className="login-logo">💧</div>
           <div className="login-title">DRAIN-EYE</div>
           <div className="login-sub">Sistem Deteksi Sumbatan Drainase DKI Jakarta</div>
         </div>
@@ -195,7 +219,7 @@ export default function Login() {
         {mode === 'forgot' && (
           <div className="forgot-heading">
             <div className="forgot-title">🔑 Lupa Password</div>
-            <div className="forgot-sub">Masukkan email kamu untuk pengiriman link reset password.</div>
+            <div className="forgot-sub">Masukkan email kamu, kami kirim link untuk reset password.</div>
           </div>
         )}
 
@@ -221,7 +245,7 @@ export default function Login() {
             <input
               className={`form-input ${fieldErrors.email ? 'input-error' : ''}`}
               type="email"
-              placeholder="nama@email.com"
+              placeholder="email@example.com"
               value={email}
               onChange={e => { setEmail(e.target.value); setFieldErrors(p => ({ ...p, email: null })) }}
               onKeyDown={handleKeyDown}
@@ -267,15 +291,14 @@ export default function Login() {
           >
             {loading ? (
               <span className="btn-spinner-wrap"><span className="btn-spinner"></span> Memproses...</span>
-            ) : mode === 'login' ? 'Masuk ke Akun' : mode === 'register' ? 'Buat Akun Baru' : 'Kirim Link Reset'}
+            ) : mode === 'login' ? '🔐 Masuk' : mode === 'register' ? '📝 Daftar' : '📧 Kirim Link Reset'}
           </button>
 
           {mode === 'login' && (
             <div className="login-note">
-              Belum punya akun? <span className="link" onClick={() => !loading && switchMode('register')}>Daftar sekarang</span>
-              <div style={{ marginTop: '6px' }}>
-                <span className="link" onClick={() => !loading && switchMode('forgot')}>Lupa password?</span>
-              </div>
+              Warga baru? <span className="link" onClick={() => !loading && switchMode('register')}>Daftar di sini</span>
+              <br />
+              <span className="link" onClick={() => !loading && switchMode('forgot')}>Lupa password?</span>
             </div>
           )}
 
@@ -288,17 +311,32 @@ export default function Login() {
           {mode !== 'forgot' && (
             <div className="login-roles">
               <div className="role-info">
-                <strong>👤 Warga</strong>
-                <span>Upload foto drainase & pantau riwayat</span>
+                <strong>👤 Warga</strong> — Upload foto drainase & lihat riwayat
               </div>
               <div className="role-info">
-                <strong>🏛️ DLH Operator</strong>
-                <span>Dashboard analisis, alert & tindakan</span>
+                <strong>🏛️ DLH Operator</strong> — Dashboard, alert & maintenance
               </div>
             </div>
           )}
         </div>
       </div>
+
+      {/* Floating Install PWA Banner */}
+      {showInstallBanner && (
+        <div className="pwa-install-banner">
+          <div className="pwa-icon">💧</div>
+          <div className="pwa-text">
+            <div className="pwa-title">Install DRAIN-EYE</div>
+            <div className="pwa-sub">Akses lebih cepat, bisa dipakai walau sinyal lemah</div>
+          </div>
+          <button className="btn-pwa-install" onClick={handleInstallClick}>
+            Install
+          </button>
+          <button className="btn-pwa-close" onClick={() => setShowInstallBanner(false)}>
+            ✕
+          </button>
+        </div>
+      )}
     </div>
   )
 }

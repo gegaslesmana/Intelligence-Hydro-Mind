@@ -375,4 +375,83 @@ body {
     padding: 28px 20px;
     border-radius: 20px;
   }
+  /* PWA Floating Install Banner */
+.pwa-install-banner {
+  position: fixed;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 12px 18px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+  z-index: 1000;
+  width: calc(100% - 40px);
+  max-width: 420px;
+  animation: slideUp 0.3s ease;
+}
+
+@keyframes slideUp {
+  from {
+    transform: translate(-50%, 40px);
+    opacity: 0;
+  }
+  to {
+    transform: translate(-50%, 0);
+    opacity: 1;
+  }
+}
+
+.pwa-icon {
+  font-size: 28px;
+}
+
+.pwa-text {
+  flex: 1;
+}
+
+.pwa-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: #1F4E79;
+}
+
+.pwa-sub {
+  font-size: 11px;
+  color: #64748b;
+  margin-top: 2px;
+}
+
+.btn-pwa-install {
+  background: #1F4E79;
+  color: #ffffff;
+  border: none;
+  border-radius: 8px;
+  padding: 8px 16px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+  font-family: inherit;
+}
+
+.btn-pwa-install:hover {
+  background: #185FA5;
+}
+
+.btn-pwa-close {
+  background: none;
+  border: none;
+  color: #94a3b8;
+  font-size: 16px;
+  cursor: pointer;
+  padding: 2px 4px;
+}
+
+.btn-pwa-close:hover {
+  color: #475569;
+}
 }
