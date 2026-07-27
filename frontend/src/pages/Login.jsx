@@ -321,22 +321,7 @@ export default function Login() {
         </div>
       </div>
 
-      {/* Floating Install PWA Banner */}
-      {showInstallBanner && (
-        <div className="pwa-install-banner">
-          <div className="pwa-icon">💧</div>
-          <div className="pwa-text">
-            <div className="pwa-title">Install DRAIN-EYE</div>
-            <div className="pwa-sub">Akses lebih cepat, bisa dipakai walau sinyal lemah</div>
-          </div>
-          <button className="btn-pwa-install" onClick={handleInstallClick}>
-            Install
-          </button>
-          <button className="btn-pwa-close" onClick={() => setShowInstallBanner(false)}>
-            ✕
-          </button>
-        </div>
-      )}
+    
     </div>
   )
 }
